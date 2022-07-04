@@ -1,0 +1,128 @@
+
+<!-- 
+
+  ━━━━━━━━┏┓━━┏┓━━━━━━━━━━━━━━━━━━━━┏┓━━━━━━━━━━━━━┏┓━━━━━━━━━━━━━━
+━━━━━━━━┃┃━━┃┃━━━━━━━━━━━━━━━━━━━┏┛┗┓━━━━━━━━━━━━┃┃━━━━━━━━━━━━━━
+┏━━┓┏┓┏┓┃┗━┓┃┃━┏┓┏━━┓┏┓┏┓┏━━┓┏━┓━┗┓┏┛┏━┓┏━━┓┏━━┓━┃┃━━━┏━━┓┏━┓┏━━┓
+┃┏┓┃┃┃┃┃┃┏┓┃┃┃━┣┫┃┏━┛┃┗┛┃┃┏┓┃┃┏┓┓━┃┃━┃┏┛┃┏┓┃┗━┓┃━┃┃━━━┃┏┓┃┃┏┛┃┏┓┃
+┃┗┛┃┃┗┛┃┃┗┛┃┃┗┓┃┃┃┗━┓┃┃┃┃┃┗┛┃┃┃┃┃━┃┗┓┃┃━┃┃━┫┃┗┛┗┓┃┗┓┏┓┃┗┛┃┃┃━┃┗┛┃
+┃┏━┛┗━━┛┗━━┛┗━┛┗┛┗━━┛┗┻┻┛┗━━┛┗┛┗┛━┗━┛┗┛━┗━━┛┗━━━┛┗━┛┗┛┗━━┛┗┛━┗━┓┃
+┃┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┏━┛┃
+┗┛━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┗━━┛
+
+Github
+
+
+//--> 
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>publicmontreal.org</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/>
+  <link rel="stylesheet" href="css/leaflet-legend.css">
+  <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="js/leaflet-legend.js"></script>
+
+  <style>
+    body { margin:0; padding:0; }
+    #map { position: absolute; top:0; bottom:0; right:0; left:0; }
+  </style>
+
+</head>
+<body>
+
+
+
+  <div id="map"></div>
+
+  <script>
+
+
+  // Set up initial map center and zoom level
+  var map = L.map('map', {
+    center: [45.55, -73.67], 
+    zoom: 11, 
+    scrollWheelZoom: true,
+    tap: false
+  });
+
+  L.control.Legend({
+    position: "bottomleft",
+    legends: [{
+        label: "Fontaines à eau potable",
+        type: "image",
+        url: "fontaine.svg",
+    },
+    {
+        label: "Bornes wifi public",
+        type: "image",
+        url: "wifi.svg",
+    }]
+}).addTo(map);
+
+
+
+  map.locate({setView: true, maxZoom: 16});
+  function onLocationFound(e) {
+    var radius = e.accuracy;
+
+    L.marker (e.latlng)
+    .addTo(map)
+        .bindPopup("Vous êtes à " + radius + " mètres de ce point").openPopup();
+    L.circle(e.latlng, radius).addTo(map);
+
+    
+  
+}
+
+map.on('locationfound', onLocationFound);
+function onLocationError(e) {
+    alert(e.message);
+}
+
+  var light = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
+    maxZoom: 20
+  }).addTo(map); 
+
+  
+ $.getJSON("fontaines.geojson",function(data){
+    var fontaineIcon = L.icon({
+      iconUrl: 'fontaine.svg',
+      iconSize: [20,30]
+    });
+    L.geoJson(data,{
+      pointToLayer: function(feature,latlng){
+        var marker = L.marker(latlng,{icon: fontaineIcon});
+        marker.bindPopup(feature.properties.Arrondissement + '<br/> Lieu : ' + feature.properties.Nom_parc_lieu + '<br/> Repère à proximité : ' + feature.properties.Proximité_jeux_repère + '<br/> Intersection : ' + feature.properties.Intersection);
+        return marker;
+      }
+    }).addTo(map);
+    
+
+  });
+
+  $.getJSON("wifi.geojson",function(data){
+    var wifiIcon = L.icon({
+      iconUrl: 'wifi.svg',
+      iconSize: [20,30]
+    });
+    L.geoJson(data,{
+      pointToLayer: function(feature,latlng){
+        var marker = L.marker(latlng,{icon: wifiIcon});
+        marker.bindPopup(feature.properties.Arrondissement + '<br/> Lieu : ' + feature.properties.Nom_parc_lieu + '<br/> Arrondissement : ' + feature.properties.Arrondissement + '<br/> Intersection : ' + feature.properties.Intersection);
+        return marker;
+      }
+    }).addTo(map);
+    
+});
+
+  </script>
+</body>
+</html>
