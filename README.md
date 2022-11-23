@@ -2,6 +2,11 @@
 
 Une application web pour trouver les fontaines à eau et bornes wifi gratuites sur Montréal !
 
+📍 Geolocalisation en HTML (pas de tracking)
+🧑‍💻 Utilisation des données ouvertes de la ville
 
-🧑‍💻
-# https://peaceful-mandazi-80fa4f.netlify.app/ 
+
+
+Application web :
+
+- https://peaceful-mandazi-80fa4f.netlify.app/ 
