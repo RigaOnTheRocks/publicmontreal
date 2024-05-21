@@ -17,19 +17,45 @@
       box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
       position: absolute; top: 10px; right: 10px; background: rgb(253, 253, 253); padding: 10px; border: 1px solid #ccc; border-radius: 5px; z-index: 1000; font-family: 'Arial', sans-serif; }
     .legend h4 { margin-top: 0; }
+    
+    .logo-box {
+
+    position: absolute;
+    top: 10px;
+    left: 50px;
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1000;
+  }
+
+  .logo-box img {
+    max-width: 50px; /* Adjust the max-width as needed */
+    height: auto;
+  }
+    
   </style>
 
 </head>
 <body>
-
 <div id="map"></div>
 <div class="legend">
   <h4>Legend:</h4>
   <input type="checkbox" id="fountainToggle" checked> Fountains<br>
-  <input type="checkbox" id="wifiToggle" checked> WiFi points
+  <input type="checkbox" id="wifiToggle" checked> WiFi<br>
+  <input type="checkbox" id="acToggle" checked> Air Conditioning
+</div>
+<div class="logo-box">
+  <img src="logo.png" alt="Logo" id="logoImage"> <!-- Added id attribute for the img tag -->
 </div>
 
+<audio id="audioPlayer" src="audio.wav"></audio> <!-- Added audio tag with the audio file source -->
+
+
+
 <script>
+
 var map = L.map('map', {
   center: [45.55, -73.67],
   zoom: 11,
@@ -38,9 +64,11 @@ var map = L.map('map', {
 
 var fontaineLayer = L.layerGroup();
 var wifiLayer = L.layerGroup();
+var acLayer = L.layerGroup();
 
 var fountainToggle = document.getElementById('fountainToggle');
 var wifiToggle = document.getElementById('wifiToggle');
+var acToggle = document.getElementById('acToggle');
 
 fountainToggle.addEventListener('change', function() {
   if (fountainToggle.checked) {
@@ -58,11 +86,25 @@ wifiToggle.addEventListener('change', function() {
   }
 });
 
+acToggle.addEventListener('change', function() {
+  if (acToggle.checked) {
+    map.addLayer(acLayer);
+  } else {
+    map.removeLayer(acLayer);
+  }
+});
+
 $.getJSON("fontaines.geojson", function(data) {
   L.geoJson(data, {
     pointToLayer: function(feature, latlng) {
-      var marker = L.marker(latlng, { icon: L.icon({ iconUrl: 'fontaine.svg', iconSize: [20, 30] }) });
-      marker.bindPopup(feature.properties.Arrondissement + '<br/> Lieu : ' + feature.properties.Nom_parc_lieu + '<br/> Repère à proximité : ' + feature.properties.Proximité_jeux_repère + '<br/> Intersection : ' + feature.properties.Intersection);
+      var marker = L.marker(latlng, { icon: L.icon({ iconUrl: 'fontaine.svg', iconSize: [20, 30] }) }); // Adjust the iconSize here
+      var popupContent = "<b>" + feature.properties.Arrondissement + "</b><br>" +
+                         "Nom du parc/lieu: " + feature.properties.Nom_parc_lieu + "<br>" +
+                         "Proximité jeux/repère: " + feature.properties.Proximité_jeux_repère + "<br>" +
+                         "Intersection: " + feature.properties.Intersection + "<br>" +
+                         "Precision localisation: " + feature.properties.Precision_localisation;
+
+      marker.bindPopup(popupContent);
       return marker;
     }
   }).addTo(fontaineLayer);
@@ -78,8 +120,26 @@ $.getJSON("wifi.geojson", function(data) {
   }).addTo(wifiLayer);
 });
 
+$.getJSON("lieux_publics_climatises.geojson", function(data) {
+  L.geoJson(data, {
+    pointToLayer: function(feature, latlng) {
+      var marker = L.marker(latlng, { icon: L.icon({ iconUrl: 'ice.svg', iconSize: [30, 40] }) });
+      var popupContent = "<b>" + feature.properties.nom + "</b><br>" +
+                         "Ville: " + feature.properties.ville + "<br>" +
+                         "Adresse: " + feature.properties.adresse_principale + "<br>" +
+                         "Téléphone: " + feature.properties.telephone + "<br>" +
+                         "Arrondissement: " + feature.properties.arrondissement + "<br>" +
+                         "Accessibilité: " + feature.properties.accessibilite;
+
+      marker.bindPopup(popupContent);
+      return marker;
+    }
+  }).addTo(acLayer);
+});
+
 fontaineLayer.addTo(map);
 wifiLayer.addTo(map);
+acLayer.addTo(map);
 
 var light = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
@@ -102,6 +162,17 @@ map.on('locationfound', onLocationFound);
 function onLocationError(e) {
   alert(e.message);
 }
+
+document.getElementById('logoImage').addEventListener('click', function() {
+  var audioPlayer = document.getElementById('audioPlayer');
+  
+  if (audioPlayer.paused) {
+    audioPlayer.play();
+  } else {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0; // Reset audio to the beginning when paused
+  }
+});
 </script>
 </body>
 </html>
