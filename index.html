@@ -14,8 +14,19 @@
     body { margin:0; padding:0; }
     #map { position: absolute; top:0; bottom:0; right:0; left:0; }
     .legend { 
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-      position: absolute; top: 10px; right: 10px; background: rgb(253, 253, 253); padding: 10px; border: 1px solid #ccc; border-radius: 5px; z-index: 1000; font-family: 'Arial', sans-serif; }
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  position: absolute; 
+  top: 10px; 
+  right: 10px; 
+  background: rgb(253, 253, 253); 
+  padding: 10px; 
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  z-index: 1000; 
+  font-family: 'Arial', sans-serif; 
+  max-width: 200px; /* Adjust the max-width as needed */
+}
+
     .legend h4 { margin-top: 0; }
     
     .logo-box {
@@ -34,6 +45,9 @@
     max-width: 50px; /* Adjust the max-width as needed */
     height: auto;
   }
+  .legend p {
+  font-size: 12px; /* Adjust the font size as needed */
+}
     
   </style>
 
@@ -41,10 +55,13 @@
 <body>
 <div id="map"></div>
 <div class="legend">
+  <p style="text-align: justify;">Ressources publiques (et gratuites) pour combattre la chaleur estivale</p>
   <h4>Legende:</h4>
-  <input type="checkbox" id="fountainToggle" checked> Fountaines<br>
+  <input type="checkbox" id="fountainToggle" checked> Fontaines<br>
   <input type="checkbox" id="wifiToggle" checked> WiFi<br>
   <input type="checkbox" id="acToggle" checked> Air climatisé
+
+
 </div>
 <div class="logo-box">
   <img src="logo.png" alt="Logo" id="logoImage"> <!-- Added id attribute for the img tag -->
