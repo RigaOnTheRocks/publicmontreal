@@ -10,4 +10,4 @@ Une application web pour trouver les fontaines à eau et bornes wifi gratuites s
 
 Application web :
 
-- https://peaceful-mandazi-80fa4f.netlify.app/ 
+- https://publicmontreal.org
